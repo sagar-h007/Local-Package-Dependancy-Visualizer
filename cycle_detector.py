@@ -103,4 +103,25 @@ class CycleDetector:
         for cycle in self.cycles:
             nodes_in_cycles.update(cycle)
         return nodes_in_cycles
+    
+    def format_cycle(self, cycle: List[str], project_root: str = None) -> str:
+        """
+        Format a cycle for display.
+        
+        Args:
+            cycle: List of file paths in the cycle
+            project_root: Optional project root to make paths relative
+            
+        Returns:
+            Formatted cycle string
+        """
+        from pathlib import Path
+        
+        if project_root:
+            project_root = Path(project_root)
+            cycle_paths = [Path(f).relative_to(project_root) for f in cycle]
+        else:
+            cycle_paths = [Path(f).name for f in cycle]
+        
+        return ' -> '.join(str(p) for p in cycle_paths) + ' -> ...'
 
