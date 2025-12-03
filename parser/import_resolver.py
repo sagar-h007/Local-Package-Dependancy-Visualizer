@@ -112,3 +112,59 @@ class ImportResolver:
                 return str(path.resolve())
         
         return None
+    def is_external_import(self, import_name: str) -> bool:
+        """
+        Check if an import is external (not part of the project).
+        
+        Args:
+            import_name: The import name to check
+            
+        Returns:
+            True if the import is external, False if it's part of the project
+        """
+        # Remove function/class names from import
+        base_module = import_name.split('.')[0]
+        
+        # Check if it's a standard library module (basic heuristic)
+        stdlib_modules = {
+            'os', 'sys', 'json', 'csv', 'datetime', 'time', 'random', 'math',
+            'collections', 'itertools', 'functools', 'operator', 'pathlib',
+            'shutil', 'subprocess', 'threading', 'multiprocessing', 'asyncio',
+            're', 'string', 'io', 'urllib', 'http', 'socket', 'ssl', 'hashlib',
+            'base64', 'pickle', 'copy', 'types', 'inspect', 'ast', 'importlib',
+            'argparse', 'logging', 'unittest', 'doctest', 'pdb', 'traceback',
+            'warnings', 'dataclasses', 'typing', 'enum', 'abc', 'contextlib',
+            'functools', 'itertools', 'collections', 'heapq', 'bisect', 'array',
+            'struct', 'codecs', 'unicodedata', 'textwrap', 'difflib', 'readline',
+            'rlcompleter', 'cmd', 'shlex', 'configparser', 'fileinput', 'stat',
+            'filecmp', 'tempfile', 'glob', 'fnmatch', 'linecache', 'shutil',
+            'macpath', 'pickletools', 'shelve', 'marshal', 'dbm', 'sqlite3',
+            'zlib', 'gzip', 'bz2', 'lzma', 'zipfile', 'tarfile', 'csv', 'netrc',
+            'xdrlib', 'plistlib', 'hashlib', 'hmac', 'secrets', 'uuid', 'ctypes',
+            'ctypes', 'mmap', 'select', 'selectors', 'asyncio', 'socket', 'ssl',
+            'email', 'json', 'mailcap', 'mailbox', 'mimetypes', 'base64', 'binhex',
+            'binascii', 'quopri', 'uu', 'html', 'xml', 'webbrowser', 'cgi',
+            'cgitb', 'wsgiref', 'urllib', 'http', 'ftplib', 'poplib', 'imaplib',
+            'nntplib', 'smtplib', 'smtpd', 'telnetlib', 'socketserver', 'xmlrpc',
+            'ipaddress', 'audioop', 'aifc', 'sunau', 'wave', 'chunk', 'colorsys',
+            'imghdr', 'sndhdr', 'ossaudiodev', 'gettext', 'locale', 'calendar',
+            'cmd', 'shlex', 'configparser', 'netrc', 'xdrlib', 'plistlib',
+            'logging', 'getopt', 'argparse', 'getpass', 'curses', 'platform',
+            'errno', 'io', 'codecs', 'unicodedata', 'stringprep', 'readline',
+            'rlcompleter', 'code', 'codeop', 'py_compile', 'compileall', 'dis',
+            'pickletools', 'tabnanny', 'pyclbr', 'py_compile', 'compileall',
+            'dis', 'pickletools', 'tabnanny', 'pyclbr', 'keyword', 'token',
+            'tokenize', 'ast', 'symtable', 'symbol', 'parser', 'keyword',
+            'pydoc', 'doctest', 'unittest', 'test', 'lib2to3', 'typing',
+            'pydoc_data', 'distutils', 'ensurepip', 'venv', 'zipapp'
+        }
+        
+        if base_module in stdlib_modules:
+            return True
+        
+        # Check if it's in our project
+        return self.resolve_import(import_name, str(self.project_root / '__init__.py')) is None
+    
+    def get_project_modules(self) -> Set[str]:
+        """Get all module names in the project."""
+        return set(self.module_to_file.keys())
