@@ -110,4 +110,12 @@ class ModuleAnalyzer:
                 highly_coupled.append((file_path, total_coupling))
         
         return sorted(highly_coupled, key=lambda x: x[1], reverse=True)
+    
+    def get_metrics(self, file_path: str) -> Dict:
+        """Get metrics for a specific module."""
+        return self.metrics.get(file_path, {})
+    
+    def get_all_metrics(self) -> Dict[str, Dict]:
+        """Get all computed metrics."""
+        return self.metrics.copy()
 

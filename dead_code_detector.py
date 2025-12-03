@@ -103,4 +103,18 @@ class DeadCodeDetector:
                 entry_points = list(self.graph.get_all_nodes())
         
         return entry_points
+    
+    def get_unused_modules(self) -> Set[str]:
+        """Get set of unused modules."""
+        return self.unused_modules.copy()
+    
+    def get_unused_exports(self) -> Dict[str, Set[str]]:
+        """Get dictionary of unused exports per file."""
+        return self.unused_exports.copy()
+    
+    def format_unused_module(self, file_path: str, project_root: str = None) -> str:
+        """Format an unused module path for display."""
+        if project_root:
+            return str(Path(file_path).relative_to(Path(project_root)))
+        return Path(file_path).name
 
