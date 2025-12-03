@@ -84,3 +84,34 @@ class ASTParser:
                         exports.add(target.id)
         
         self.file_exports[file_path] = exports
+    def parse_directory(self, directory: Optional[str] = None, exclude_dirs: Optional[Set[str]] = None) -> int:
+        """
+        Recursively parse all Python files in a directory.
+        
+        Args:
+            directory: Directory to parse (defaults to project_root)
+            exclude_dirs: Set of directory names to exclude (e.g., {'__pycache__', '.git'})
+            
+        Returns:
+            Number of files parsed
+        """
+        if directory is None:
+            directory = self.project_root
+        else:
+            directory = Path(directory).resolve()
+        
+        if exclude_dirs is None:
+            exclude_dirs = {'__pycache__', '.git', '.venv', 'venv', 'env', '.env', 'node_modules', '.pytest_cache'}
+        
+        count = 0
+        for root, dirs, files in os.walk(directory):
+            # Filter out excluded directories
+            dirs[:] = [d for d in dirs if d not in exclude_dirs]
+            
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = Path(root) / file
+                    if self.parse_file(str(file_path)) is not None:
+                        count += 1
+        
+        return count
