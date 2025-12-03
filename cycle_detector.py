@@ -39,4 +39,40 @@ class CycleDetector:
                 self._dfs(node, [])
         
         return self.cycles.copy()
+    
+    def _dfs(self, node: str, path: List[str]):
+        """
+        Depth-first search to detect cycles.
+        
+        Args:
+            node: Current node
+            path: Current path in the DFS
+        """
+        if node in self._recursion_stack:
+            # Found a cycle
+            cycle_start = path.index(node)
+            cycle = path[cycle_start:] + [node]
+            # Normalize cycle (start from lexicographically smallest node)
+            if cycle:
+                min_idx = min(range(len(cycle)), key=lambda i: cycle[i])
+                cycle = cycle[min_idx:] + cycle[:min_idx]
+            # Check if we've seen this cycle before
+            cycle_tuple = tuple(sorted(set(cycle)))
+            if cycle_tuple not in {tuple(sorted(set(c))) for c in self.cycles}:
+                self.cycles.append(cycle)
+            return
+        
+        if node in self._visited:
+            return
+        
+        self._visited.add(node)
+        self._recursion_stack.add(node)
+        path.append(node)
+        
+        # Visit all neighbors
+        for neighbor in self.graph.get_dependencies(node):
+            self._dfs(neighbor, path.copy())
+        
+        self._recursion_stack.remove(node)
+        path.pop()
 
