@@ -37,3 +37,26 @@ class GraphBuilder:
             self.node_metadata[normalized] = metadata
         elif normalized not in self.node_metadata:
             self.node_metadata[normalized] = {}
+    def add_edge(self, from_file: str, to_file: str, metadata: Optional[Dict] = None):
+        """
+        Add an edge to the graph.
+        
+        Args:
+            from_file: Source file path
+            to_file: Target file path
+            metadata: Optional metadata about the edge
+        """
+        from_normalized = self._normalize_path(from_file)
+        to_normalized = self._normalize_path(to_file)
+        
+        # Only add edges between project files
+        if from_normalized not in self.nodes:
+            self.add_node(from_normalized)
+        if to_normalized not in self.nodes:
+            self.add_node(to_normalized)
+        
+        edge_metadata = metadata or {}
+        self.edges.append((from_normalized, to_normalized, edge_metadata))
+        self.incoming[to_normalized].add(from_normalized)       #record who imports the file 
+        self.outgoing[from_normalized].add(to_normalized)       #store in list
+    
