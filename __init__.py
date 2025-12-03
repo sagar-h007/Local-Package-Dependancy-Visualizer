@@ -14,4 +14,5 @@ from .cycle_detector import CycleDetector
 from .dead_code_detector import DeadCodeDetector
 from .module_analyzer import ModuleAnalyzer
 from .split_suggester import SplitSuggester
+from .visualizer import Visualizer
 
