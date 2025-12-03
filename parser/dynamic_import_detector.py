@@ -77,3 +77,14 @@ class DynamicImportDetector:
             self.dynamic_imports[file_path] = issues
         
         return issues
+    def get_dynamic_imports(self, file_path: str) -> List[Tuple[int, str, str]]:
+        """Get dynamic imports detected for a file."""
+        return self.dynamic_imports.get(file_path, [])
+    
+    def get_all_dynamic_imports(self) -> Dict[str, List[Tuple[int, str, str]]]:
+        """Get all dynamic imports detected across all files."""
+        return self.dynamic_imports.copy()
+    
+    def has_dynamic_imports(self, file_path: str) -> bool:
+        """Check if a file has dynamic imports."""
+        return file_path in self.dynamic_imports and len(self.dynamic_imports[file_path]) > 0
