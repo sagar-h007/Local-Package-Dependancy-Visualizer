@@ -75,4 +75,32 @@ class CycleDetector:
         
         self._recursion_stack.remove(node)
         path.pop()
+    
+    def has_cycles(self) -> bool:
+        """Check if the graph has any cycles."""
+        if not self.cycles:
+            self.detect_cycles()
+        return len(self.cycles) > 0
+    
+    def get_cycle_count(self) -> int:
+        """Get the number of cycles detected."""
+        if not self.cycles:
+            self.detect_cycles()
+        return len(self.cycles)
+    
+    def get_cycles(self) -> List[List[str]]:
+        """Get all detected cycles."""
+        if not self.cycles:
+            self.detect_cycles()
+        return self.cycles.copy()
+    
+    def get_nodes_in_cycles(self) -> Set[str]:
+        """Get all nodes that are part of at least one cycle."""
+        if not self.cycles:
+            self.detect_cycles()
+        
+        nodes_in_cycles = set()
+        for cycle in self.cycles:
+            nodes_in_cycles.update(cycle)
+        return nodes_in_cycles
 
