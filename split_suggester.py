@@ -111,4 +111,63 @@ class SplitSuggester:
             })
         
         return suggestions
+    
+    def _group_classes(self, classes: List[ast.ClassDef]) -> List[List[ast.ClassDef]]:
+        """Group classes by name similarity."""
+        groups = []
+        used = set()
+        
+        for i, cls in enumerate(classes):
+            if i in used:
+                continue
+            
+            group = [cls]
+            used.add(i)
+            
+            # Find classes with similar names
+            base_name = cls.name.lower()
+            for j, other_cls in enumerate(classes[i+1:], start=i+1):
+                if j in used:
+                    continue
+                
+                other_name = other_cls.name.lower()
+                # Check for common prefix
+                if self._common_prefix(base_name, other_name) >= 3:
+                    group.append(other_cls)
+                    used.add(j)
+            
+            groups.append(group)
+        
+        return groups
+    
+    def _group_functions(self, functions: List[ast.FunctionDef]) -> List[List[ast.FunctionDef]]:
+        """Group functions by name prefix."""
+        groups = []
+        used = set()
+        
+        for i, func in enumerate(functions):
+            if i in used:
+                continue
+            
+            group = [func]
+            used.add(i)
+            
+            # Find functions with similar prefixes
+            base_name = func.name.lower()
+            prefix = self._get_prefix(base_name)
+            
+            for j, other_func in enumerate(functions[i+1:], start=i+1):
+                if j in used:
+                    continue
+                
+                other_name = other_func.name.lower()
+                other_prefix = self._get_prefix(other_name)
+                
+                if prefix and prefix == other_prefix and len(prefix) >= 3:
+                    group.append(other_func)
+                    used.add(j)
+            
+            groups.append(group)
+        
+        return groups
 
