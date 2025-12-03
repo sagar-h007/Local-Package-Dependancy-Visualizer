@@ -115,3 +115,18 @@ class ASTParser:
                         count += 1
         
         return count
+    def get_imports(self, file_path: str) -> List[Tuple[str, int, str]]:
+        """Get all imports for a file."""
+        return self.file_imports.get(file_path, [])
+    
+    def get_exports(self, file_path: str) -> Set[str]:
+        """Get all exports for a file."""
+        return self.file_exports.get(file_path, set())
+    
+    def get_line_count(self, file_path: str) -> int:
+        """Get line count for a file."""
+        return self.file_lines.get(file_path, 0)
+    
+    def get_all_files(self) -> List[str]:
+        """Get list of all parsed files."""
+        return list(self.parsed_files.keys())
