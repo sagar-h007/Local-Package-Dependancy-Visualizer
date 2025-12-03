@@ -78,4 +78,29 @@ class DeadCodeDetector:
             'unused_modules': self.unused_modules,
             'unused_exports': self.unused_exports,
         }
+    
+    def _find_entry_points(self) -> List[str]:
+        """Find potential entry points in the project."""
+        entry_points = []
+        
+        # Look for common entry point patterns
+        for file_path in self.graph.get_all_nodes():
+            path_obj = Path(file_path)
+            name = path_obj.name.lower()
+            
+            if name in ('__main__.py', 'main.py', 'app.py', 'run.py', 'cli.py'):
+                entry_points.append(file_path)
+            elif 'main' in name or 'entry' in name or 'start' in name:
+                entry_points.append(file_path)
+        
+        # If no entry points found, use root nodes
+        if not entry_points:
+            root_nodes = self.graph.get_root_nodes()
+            if root_nodes:
+                entry_points = list(root_nodes)
+            else:
+                # Fallback: use all nodes (conservative approach)
+                entry_points = list(self.graph.get_all_nodes())
+        
+        return entry_points
 
