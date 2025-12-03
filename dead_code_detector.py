@@ -21,4 +21,61 @@ class DeadCodeDetector:
         self.parser = parser
         self.unused_modules: Set[str] = set()
         self.unused_exports: Dict[str, Set[str]] = {}  # file -> {unused_export, ...}
+    
+    def detect_dead_code(self, entry_points: List[str] = None) -> Dict[str, Set[str]]:
+        """
+        Detect dead code starting from entry points.
+        
+        Args:
+            entry_points: List of entry point files (e.g., main.py, __main__.py)
+                          If None, uses root nodes and files with 'main' in name
+        
+        Returns:
+            Dictionary with 'unused_modules' and 'unused_exports' keys
+        """
+        if entry_points is None:
+            entry_points = self._find_entry_points()
+        
+        # Find all reachable nodes from entry points
+        reachable = set()
+        to_visit = list(entry_points)
+        
+        while to_visit:
+            current = to_visit.pop()
+            if current in reachable:
+                continue
+            
+            reachable.add(current)
+            # Add all dependencies
+            for dep in self.graph.get_dependencies(current):
+                if dep not in reachable:
+                    to_visit.append(dep)
+            # Add all dependents (reverse direction)
+            for dependent in self.graph.get_dependents(current):
+                if dependent not in reachable:
+                    to_visit.append(dependent)
+        
+        # Find unused modules (not reachable from entry points)
+        all_nodes = self.graph.get_all_nodes()
+        self.unused_modules = all_nodes - reachable
+        
+        # Find unused exports
+        self.unused_exports = {}
+        for file_path in all_nodes:
+            exports = self.parser.get_exports(file_path)
+            if not exports:
+                continue
+            
+            # Check if exports are used (heuristic: check if file is imported)
+            # This is a simplified check - in reality, we'd need to check if
+            # specific names are imported
+            dependents = self.graph.get_dependents(file_path)
+            if not dependents and file_path not in entry_points:
+                # File is not imported anywhere and not an entry point
+                self.unused_exports[file_path] = exports
+        
+        return {
+            'unused_modules': self.unused_modules,
+            'unused_exports': self.unused_exports,
+        }
 
