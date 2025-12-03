@@ -170,4 +170,47 @@ class SplitSuggester:
             groups.append(group)
         
         return groups
-
+    
+    def _group_by_imports(self, file_path: str, tree: ast.Module) -> List[Set[str]]:
+        """Group definitions by their import usage."""
+        # This is a simplified version - in practice, you'd analyze
+        # which imports each function/class uses
+        return [set()]  # Placeholder
+    
+    def _common_prefix(self, s1: str, s2: str) -> int:
+        """Find length of common prefix between two strings."""
+        i = 0
+        while i < min(len(s1), len(s2)) and s1[i] == s2[i]:
+            i += 1
+        return i
+    
+    def _get_prefix(self, name: str) -> str:
+        """Extract prefix from a function name (e.g., 'get_user' -> 'get')."""
+        parts = name.split('_')
+        if len(parts) > 1:
+            return parts[0]
+        return ''
+    
+    def get_suggestions(self, file_path: str) -> List[Dict]:
+        """Get split suggestions for a file."""
+        return self.suggestions.get(file_path, [])
+    
+    def get_all_suggestions(self) -> Dict[str, List[Dict]]:
+        """Get all split suggestions."""
+        return self.suggestions.copy()
+    
+    def format_suggestion(self, file_path: str, suggestion: Dict, project_root: str = None) -> str:
+        """Format a split suggestion for display."""
+        rel_path = Path(file_path).relative_to(Path(project_root)) if project_root else Path(file_path).name
+        
+        lines = [
+            f"File: {rel_path}",
+            f"  Type: {suggestion['type']}",
+            f"  Reason: {suggestion['reason']}",
+            f"  Recommendation: {suggestion['recommendation']}",
+        ]
+        
+        if 'groups' in suggestion:
+            lines.append(f"  Suggested groups: {suggestion['groups']}")
+        
+        return '\n'.join(lines)
