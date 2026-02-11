@@ -2,6 +2,8 @@
 
 A Python tool to parse a project's imports and build a dependency graph of modules and packages. Detects cycles, dead code, and oversized modules. Provides ASCII maps and Graphviz exports. Warns about risky dynamic imports.
 
+https://pypi.org/project/local-package-visualizer/0.1.3/
+
 ## Features
 
 - **AST-based Parsing**: Walks Python ASTs to extract imports and module structure
